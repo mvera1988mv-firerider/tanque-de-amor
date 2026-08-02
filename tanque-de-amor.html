@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanque de Amor · Eugenia & Miguel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1F27; --bg-deep:#0A171E; --surface:#16303C; --surface-2:#1D3D4A; --surface-3:#254A58;
+    --line: rgba(234,242,238,0.10); --line-soft: rgba(234,242,238,0.06);
+    --foam:#EAF2EE; --muted:#8FB3AE; --muted-2:#5F8983;
+    --amber:#E8A852; --rose:#E88C7D; --aqua:#6FB8C4; --sage:#7FB69E; --orchid:#C98BD9;
+    --tiempo:#E8A852; --servicio:#7FB69E; --regalos:#C98BD9; --palabras:#6FB8C4; --contacto:#E88C7D;
+    --radius: 14px; --radius-lg: 20px; --shadow: 0 20px 50px -20px rgba(0,0,0,0.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 500px at 50% -10%, rgba(111,184,196,0.10), transparent 60%),
+      radial-gradient(900px 400px at 90% 10%, rgba(232,140,125,0.06), transparent 60%),
+      var(--bg-deep);
+    color:var(--foam); font-family:'Work Sans', sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono', monospace;}
+  .display{font-family:'Fraunces', serif;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+  button:focus-visible, [tabindex]:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible{outline:2px solid var(--aqua); outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+  #onboarding{
+    position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(1000px 500px at 50% 0%, rgba(111,184,196,0.12), transparent 60%), var(--bg-deep);
+    padding:24px;
+  }
+  .onboard-card{max-width:440px; width:100%; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:36px 30px; box-shadow:var(--shadow); text-align:center;}
+  .onboard-card .eyebrow{color:var(--muted); letter-spacing:.14em; text-transform:uppercase; font-size:11px; margin-bottom:10px;}
+  .onboard-card h1{font-size:26px; margin:0 0 8px; font-weight:600;}
+  .onboard-card p{color:var(--muted); font-size:13.5px; line-height:1.55; margin:0 0 24px;}
+  .who-row{display:flex; gap:12px;}
+  .who-btn{flex:1; padding:18px 10px; border-radius:12px; border:1px solid var(--line); background:var(--surface-2); color:var(--foam); font-size:16px; font-weight:600; display:flex; flex-direction:column; align-items:center; gap:6px; transition:transform .15s ease, border-color .15s ease, background .15s ease;}
+  .who-btn span.tag{font-size:11px; font-weight:400; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+  .who-btn:hover{transform:translateY(-2px); border-color:var(--aqua); background:var(--surface-3);}
+  .step{display:none;}
+  .step.active{display:block;}
+  .sync-choice{display:flex; flex-direction:column; gap:10px; text-align:left;}
+  .sync-opt{border:1px solid var(--line); background:var(--surface-2); border-radius:12px; padding:14px 16px; transition:border-color .15s ease, background .15s ease;}
+  .sync-opt:hover{border-color:var(--aqua); background:var(--surface-3);}
+  .sync-opt b{display:block; font-size:14px; margin-bottom:3px;}
+  .sync-opt span{font-size:12px; color:var(--muted);}
+  .code-box{
+    font-family:'JetBrains Mono',monospace; font-size:20px; letter-spacing:.04em; font-weight:600;
+    background:var(--bg-deep); border:1px solid var(--line); border-radius:10px; padding:14px; margin:16px 0;
+    word-break:break-all; color:var(--amber);
+  }
+  .back-link{background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; margin-top:14px;}
+  .sync-input-row{display:flex; gap:8px; margin-top:12px;}
+  .sync-input-row input{flex:1;}
+  .status-line{font-size:12px; color:var(--muted); margin-top:10px; min-height:16px;}
+  .status-line.err{color:var(--rose);}
+  .status-line.ok{color:var(--sage);}
+
+  #app{max-width:920px; margin:0 auto; padding:20px 18px 80px;}
+  header.top{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:6px 2px 22px; flex-wrap:wrap;}
+  header.top .title{display:flex; flex-direction:column; gap:4px;}
+  header.top .title .names{font-size:26px; font-weight:600;}
+  header.top .title .names .heart{color:var(--rose); margin:0 6px;}
+  header.top .meta{color:var(--muted); font-size:12.5px; font-family:'JetBrains Mono',monospace;}
+  header.top .who-block{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  header.top .who{display:flex; align-items:center; gap:8px; color:var(--muted); font-size:12px; background:var(--surface); border:1px solid var(--line); padding:8px 12px; border-radius:999px;}
+  header.top .who b{color:var(--foam); font-weight:600;}
+  header.top .who button{background:none; border:none; color:var(--aqua); font-size:12px; text-decoration:underline; padding:0;}
+  .sync-pill{font-size:11px; font-family:'JetBrains Mono',monospace; padding:8px 12px; border-radius:999px; background:var(--surface); border:1px solid var(--line); color:var(--muted);}
+
+  .tanks-wrap{display:grid; grid-template-columns:1fr auto 1fr; gap:18px; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); padding:26px 20px; box-shadow:var(--shadow); margin-bottom:22px;}
+  .tank-col{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .tank-col .who-name{font-size:15px; font-weight:600; letter-spacing:.02em;}
+  .tank-col .who-name .rank-note{display:block; color:var(--muted); font-size:11px; font-weight:400; margin-top:2px; font-family:'JetBrains Mono',monospace;}
+  .jar{width:74px; height:190px; border-radius:14px 14px 20px 20px; background:var(--bg-deep); border:2px solid var(--line); position:relative; overflow:hidden; display:flex; flex-direction:column-reverse;}
+  .jar .band{position:relative; width:100%; overflow:hidden; border-top:1px solid rgba(10,23,30,0.5);}
+  .jar .band:last-child{border-top:none;}
+  .jar .band .fill{position:absolute; left:0; bottom:0; width:100%; transition:height .6s cubic-bezier(.22,.9,.35,1);}
+  .jar .band .fill::after{content:''; position:absolute; top:-3px; left:0; right:0; height:5px; background:rgba(255,255,255,0.35); filter:blur(1px);}
+  .tank-pct{font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:600;}
+  .tank-pct small{font-size:12px; color:var(--muted); font-weight:400; display:block; margin-top:2px;}
+  .tank-overflow{font-size:10px; color:var(--amber); font-family:'JetBrains Mono',monospace; margin-top:-6px;}
+  .versus{display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--muted);}
+  .versus .heart-big{font-size:22px; color:var(--rose);}
+  .versus .countdown{font-family:'JetBrains Mono',monospace; font-size:11px; text-align:center; line-height:1.5;}
+  .versus .countdown b{color:var(--foam); display:block; font-size:13px;}
+
+  nav.tabs{display:flex; gap:6px; margin-bottom:20px; background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px; overflow-x:auto;}
+  nav.tabs button{flex:1; background:none; border:none; color:var(--muted); padding:10px 8px; border-radius:999px; font-size:13px; font-weight:600; transition:background .15s ease, color .15s ease; white-space:nowrap;}
+  nav.tabs button.active{background:var(--surface-3); color:var(--foam);}
+  nav.tabs button:hover:not(.active){color:var(--foam);}
+
+  section.panel{display:none;}
+  section.panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);}}
+
+  .card{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px;}
+  .card h2{font-size:15px; margin:0 0 4px; font-weight:600;}
+  .card .sub{color:var(--muted); font-size:12.5px; margin:0 0 14px;}
+
+  .pend-item{display:flex; align-items:center; gap:12px; padding:12px 0; border-top:1px solid var(--line-soft);}
+  .pend-item:first-of-type{border-top:none;}
+  .lang-dot{width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; flex:none;}
+  .pend-item .txt{flex:1; min-width:0;}
+  .pend-item .txt .desc{font-size:13.5px; font-weight:500; line-height:1.35;}
+  .pend-item .txt .meta{font-size:11px; color:var(--muted); margin-top:2px; font-family:'JetBrains Mono',monospace;}
+  .badge{font-size:10px; font-family:'JetBrains Mono',monospace; padding:2px 7px; border-radius:999px; background:rgba(232,140,125,0.15); color:var(--rose); border:1px solid rgba(232,140,125,0.3);}
+  .btn{border:1px solid var(--line); background:var(--surface-2); color:var(--foam); padding:8px 14px; border-radius:9px; font-size:12.5px; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .1s ease;}
+  .btn:hover{background:var(--surface-3);}
+  .btn:active{transform:scale(0.97);}
+  .btn.primary{background:var(--aqua); color:#0A171E; border-color:var(--aqua);}
+  .btn.primary:hover{background:#7FC5D0;}
+  .btn.ghost{background:none;}
+  .btn.small{padding:5px 10px; font-size:11px;}
+  .empty{color:var(--muted); font-size:13px; padding:14px 0; text-align:center;}
+
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;}
+  .form-grid label{font-size:11px; color:var(--muted); display:block; margin-bottom:5px; font-family:'JetBrains Mono',monospace;}
+  select, textarea, input[type=text]{width:100%; background:var(--bg-deep); border:1px solid var(--line); color:var(--foam); border-radius:9px; padding:10px 11px; font-size:13.5px; font-family:inherit;}
+  textarea{resize:vertical; min-height:60px;}
+  .req-group-title{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:22px 0 8px; font-weight:600;}
+  .req-group-title:first-child{margin-top:0;}
+  .req-item{display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-top:1px solid var(--line-soft);}
+  .req-item:first-of-type{border-top:none;}
+  .req-item .txt{flex:1;}
+  .req-item .txt .desc{font-size:13.5px; font-weight:500;}
+  .req-item .txt .meta{font-size:11px; color:var(--muted); margin-top:2px; font-family:'JetBrains Mono',monospace;}
+
+  .lang-block{border-top:1px solid var(--line-soft); padding:16px 0;}
+  .lang-block:first-of-type{border-top:none; padding-top:0;}
+  .lang-head{display:flex; align-items:center; gap:10px; margin-bottom:6px;}
+  .lang-head .lang-dot{width:30px; height:30px; font-size:14px;}
+  .lang-head h3{font-size:15px; margin:0; font-weight:600; flex:1;}
+  .ranks{display:flex; gap:6px;}
+  .rank-chip{font-size:10px; font-family:'JetBrains Mono',monospace; padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted);}
+  .rank-chip.top{border-color:var(--amber); color:var(--amber);}
+  .lang-block p{font-size:13px; line-height:1.6; color:#CFE0DB; margin:0 0 8px;}
+  .lang-block .tip{font-size:12.5px; color:var(--muted); font-style:italic; line-height:1.5;}
+
+  .hist-item{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-top:1px solid var(--line-soft); font-size:13px;}
+  .hist-item:first-of-type{border-top:none;}
+  .hist-item .date{color:var(--muted); font-size:11px; font-family:'JetBrains Mono',monospace; width:60px; flex:none; padding-top:2px;}
+  .hist-item .points{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--sage); flex:none;}
+
+  footer.credit{text-align:center; color:var(--muted-2); font-size:11px; margin-top:30px; font-family:'JetBrains Mono',monospace;}
+
+  .toast-container{position:fixed; top:18px; right:18px; z-index:300; display:flex; flex-direction:column; gap:10px; width:320px; max-width:calc(100vw - 32px); pointer-events:none;}
+  .toast{pointer-events:auto; background:var(--surface-3); border:1px solid var(--line); border-radius:12px; padding:13px 14px; box-shadow:var(--shadow); display:flex; gap:10px; align-items:flex-start; animation:toastIn .3s cubic-bezier(.22,.9,.35,1);}
+  .toast .toast-dot{width:32px; height:32px; border-radius:9px; flex:none; display:flex; align-items:center; justify-content:center; font-size:15px;}
+  .toast .toast-body{flex:1; min-width:0;}
+  .toast .toast-title{font-size:12.5px; font-weight:700; margin-bottom:2px;}
+  .toast .toast-text{font-size:12.5px; color:var(--muted); line-height:1.4;}
+  .toast .toast-close{background:none; border:none; color:var(--muted); font-size:15px; line-height:1; padding:2px; flex:none;}
+  .toast .toast-close:hover{color:var(--foam);}
+  .toast.leaving{animation:toastOut .25s ease forwards;}
+  @keyframes toastIn{from{opacity:0; transform:translateX(24px) scale(.98);} to{opacity:1; transform:translateX(0) scale(1);}}
+  @keyframes toastOut{to{opacity:0; transform:translateX(24px) scale(.98);}}
+  @media (max-width:560px){ .toast-container{left:16px; right:16px; top:12px; width:auto;} }
+
+  @media (max-width:560px){
+    .tanks-wrap{grid-template-columns:1fr;}
+    .versus{flex-direction:row; justify-content:center; order:2;}
+    .tank-col:nth-of-type(1){order:1;}
+    .tank-col:nth-of-type(3){order:3;}
+    .form-grid{grid-template-columns:1fr;}
+    header.top{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div id="onboarding">
+  <div class="onboard-card">
+
+    <div class="step active" id="step-who">
+      <div class="eyebrow">Tanque de amor</div>
+      <h1 class="display">¿Quién eres?</h1>
+      <p>Elige tu perfil para ver tus solicitudes pendientes y llenar el tanque de tu pareja.</p>
+      <div class="who-row">
+        <button class="who-btn" data-who="eugenia">Eugenia<span class="tag">tiempo · servicio · regalos</span></button>
+        <button class="who-btn" data-who="miguel">Miguel<span class="tag">palabras · contacto · tiempo</span></button>
+      </div>
+    </div>
+
+    <div class="step" id="step-sync">
+      <div class="eyebrow">Sincronización</div>
+      <h1 class="display">Conecta con tu pareja</h1>
+      <p>Este archivo se sincroniza a través de un servicio gratuito en la nube usando un código de pareja. Solo se configura una vez.</p>
+      <div class="sync-choice">
+        <button class="sync-opt" id="createCodeBtn">
+          <b>Es la primera vez que lo usamos</b>
+          <span>Genero un código nuevo para nuestra pareja</span>
+        </button>
+        <button class="sync-opt" id="haveCodeBtn">
+          <b>Ya tengo un código</b>
+          <span>Mi pareja ya lo generó y me lo compartió</span>
+        </button>
+      </div>
+      <div class="status-line" id="syncSetupStatus"></div>
+    </div>
+
+    <div class="step" id="step-showcode">
+      <div class="eyebrow">Código de pareja</div>
+      <h1 class="display">Compártelo</h1>
+      <p>Envíale este código a tu pareja (por WhatsApp, por ejemplo). Ella debe elegir "Ya tengo un código" en su copia de este mismo archivo y pegarlo.</p>
+      <div class="code-box" id="codeDisplay">—</div>
+      <button class="btn primary" id="copyCodeBtn" style="width:100%;">Copiar código</button>
+      <button class="btn" id="continueAfterCode" style="width:100%; margin-top:10px;">Continuar a la app</button>
+    </div>
+
+    <div class="step" id="step-entercode">
+      <div class="eyebrow">Código de pareja</div>
+      <h1 class="display">Pega el código</h1>
+      <p>Pídele a tu pareja el código que generó y pégalo aquí.</p>
+      <div class="sync-input-row">
+        <input type="text" id="codeInput" placeholder="Código de pareja">
+      </div>
+      <button class="btn primary" id="connectCodeBtn" style="width:100%; margin-top:12px;">Conectar</button>
+      <div class="status-line" id="connectStatus"></div>
+      <button class="back-link" id="backFromEnter">volver</button>
+    </div>
+
+    <div class="step" id="step-storage-error">
+      <div class="eyebrow" style="color:var(--rose);">No se pudo abrir</div>
+      <h1 class="display">Este navegador bloquea el guardado</h1>
+      <p>El botón no responde porque este visor no permite guardar datos en un archivo local. Esto pasa casi siempre por dos motivos:</p>
+      <p style="text-align:left; font-size:13px; line-height:1.7;">
+        <b>1.</b> Lo abriste desde la vista previa de WhatsApp o de la app Archivos/Files, que no ejecuta la app completa.<br>
+        <b>Solución:</b> mantén presionado el archivo → "Abrir con" o "Compartir" → elige <b>Chrome</b> (Android) o <b>Safari</b> (iPhone) directamente.<br><br>
+        <b>2.</b> Estás en modo incógnito/privado, donde el navegador bloquea el guardado local.<br>
+        <b>Solución:</b> ábrelo en una pestaña normal, no privada.
+      </p>
+      <button class="btn primary" id="retryStorageBtn" style="width:100%;">Ya lo abrí distinto, reintentar</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="app" style="display:none;">
+  <header class="top">
+    <div class="title">
+      <div class="names display">Eugenia <span class="heart">♥</span> Miguel</div>
+      <div class="meta" id="weekRange">semana —</div>
+    </div>
+    <div class="who-block">
+      <div class="sync-pill" id="syncPill">⚪ —</div>
+      <button class="btn small" id="manualSyncBtn" style="padding:6px 10px;">↻ Sincronizar</button>
+      <div class="who">
+        Estás como <b id="whoLabel">—</b>
+        <button id="switchWho">cambiar</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="tanks-wrap" id="tanksWrap"></div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="inicio">Inicio</button>
+    <button class="tab-btn" data-tab="solicitudes">Solicitudes</button>
+    <button class="tab-btn" data-tab="guia">Guía</button>
+    <button class="tab-btn" data-tab="historial">Historial</button>
+    <button class="tab-btn" data-tab="respaldo">Ajustes</button>
+  </nav>
+
+  <section class="panel active" id="panel-inicio"></section>
+  <section class="panel" id="panel-solicitudes"></section>
+  <section class="panel" id="panel-guia"></section>
+  <section class="panel" id="panel-historial"></section>
+  <section class="panel" id="panel-respaldo"></section>
+
+  <footer class="credit">llenando el tanque, una gota a la vez</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ===================== Constantes del modelo =====================
+  var LANGS = ['tiempo','servicio','regalos','palabras','contacto'];
+  var LABELS = {tiempo:'Tiempo de calidad', servicio:'Actos de servicio', regalos:'Regalos', palabras:'Palabras de afirmación', contacto:'Contacto físico'};
+  var ICONS = {tiempo:'⏳', servicio:'🤝', regalos:'🎁', palabras:'💬', contacto:'🤍'};
+  var COLORVAR = {tiempo:'--tiempo', servicio:'--servicio', regalos:'--regalos', palabras:'--palabras', contacto:'--contacto'};
+  var PRIORITIES = {
+    eugenia: ['tiempo','servicio','regalos','palabras','contacto'],
+    miguel:  ['palabras','contacto','tiempo','servicio','regalos']
+  };
+  var NAMES = {eugenia:'Eugenia', miguel:'Miguel'};
+  var PARTNER = {eugenia:'miguel', miguel:'eugenia'};
+  var FREQ_LABELS = {diaria:'Diaria', semanal:'Semanal', mensual:'Mensual'};
+
+  var GUIA_TEXT = {
+    tiempo: {desc:"Significa dar atención completa y sin distracciones: conversar mirándose a los ojos, hacer una actividad juntos o simplemente estar presente sin el teléfono de por medio. No es estar en la misma habitación, es estar enfocados el uno en el otro.", tip:"Dr. Chapman: la calidad importa más que la cantidad. 15 minutos de atención total valen más que 3 horas distraído."},
+    servicio: {desc:"Hacer por la otra persona cosas que sabes que aliviarían su carga: una tarea del hogar, un trámite, resolver algo antes de que lo pida. Se dan libremente, no por obligación ni con reclamo.", tip:"Dr. Chapman: los actos de servicio requieren pensamiento, planificación, tiempo y esfuerzo — hazlos con una actitud positiva, no como favor forzado."},
+    regalos: {desc:"Un objeto tangible que dice 'estaba pensando en ti'. El valor no está en el precio, está en el gesto y el significado detrás de él.", tip:"Dr. Chapman: el regalo es un símbolo visible de amor — no necesita ser caro, necesita ser intencional."},
+    palabras: {desc:"Frases que afirman, agradecen o elogian: reconocer un logro, decir 'te admiro por...', un mensaje inesperado de aprecio. Lo contrario también duele el doble: las palabras negativas hieren profundo en quien tiene este lenguaje.", tip:"Dr. Chapman: las palabras de afirmación son órdenes suaves, nunca exigencias — la forma en que se dicen importa tanto como lo que se dice."},
+    contacto: {desc:"Cercanía física no necesariamente sexual: tomarse de la mano, un abrazo al llegar, una mano en el hombro, sentarse cerca. Para quien tiene este lenguaje, el contacto comunica seguridad y cercanía emocional.", tip:"Dr. Chapman: el contacto físico puede hacer o deshacer una relación — los toques breves y cotidianos son depósitos constantes."}
+  };
+  var METHOD_INTRO = "El Dr. Gary Chapman propone que todos damos y recibimos amor principalmente en uno de 5 \"lenguajes\". El tanque emocional se vacía con el tiempo y necesita rellenarse con depósitos en el lenguaje que le importa a la otra persona — no en el que a ti te resulte más natural dar. Abajo están sus lenguajes ordenados de mayor a menor prioridad para cada uno.";
+
+  // ===================== Estado =====================
+  var state = {who: null, data: {requests: [], completions: []}, tab: 'inicio'};
+  var STORAGE_KEY = 'lovetank-data-v1';
+  var seenReqIds = [];
+  var pendingWho = null;
+  var pendingCreatedCode = null;
+
+  function weightFor(person, lang){ var idx = PRIORITIES[person].indexOf(lang); return 5 - idx; }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function pad(n){ return n<10 ? '0'+n : ''+n; }
+  function dateKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function monthKey(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1); }
+  function getMonday(d){ var x=new Date(d); var day=x.getDay(); var diff=(day===0?-6:1-day); x.setDate(x.getDate()+diff); x.setHours(0,0,0,0); return x; }
+  var NOW = new Date();
+  var MONDAY = getMonday(NOW);
+  var NEXT_MONDAY = new Date(MONDAY); NEXT_MONDAY.setDate(NEXT_MONDAY.getDate()+7);
+  function fmtRange(){ var sunday=new Date(MONDAY); sunday.setDate(sunday.getDate()+6); var opts={day:'numeric',month:'short'}; return 'semana del ' + MONDAY.toLocaleDateString('es-ES', opts) + ' al ' + sunday.toLocaleDateString('es-ES', opts); }
+  function countdownText(){ var diff=NEXT_MONDAY-new Date(); if(diff<0) diff=0; var d=Math.floor(diff/86400000); var h=Math.floor((diff%86400000)/3600000); var m=Math.floor((diff%3600000)/60000); return d+'d '+h+'h '+m+'m'; }
+  function escapeHtml(s){ var div=document.createElement('div'); div.textContent=s; return div.innerHTML; }
+
+  // ===================== Almacenamiento local (funciona sin internet) =====================
+  function lsGet(key){ return new Promise(function(resolve){ try{ var v=localStorage.getItem(key); resolve(v===null?null:{key:key,value:v}); }catch(e){ resolve(null);} }); }
+  function lsSet(key, value){ return new Promise(function(resolve, reject){ try{ localStorage.setItem(key, value); resolve({key:key,value:value}); }catch(e){ reject(e);} }); }
+  function lsDelete(key){ return new Promise(function(resolve){ try{ localStorage.removeItem(key); resolve({key:key,deleted:true}); }catch(e){ resolve(null);} }); }
+
+  function loadWho(){ return lsGet('lovetank-whoami').then(function(r){ state.who = r ? r.value : null; }); }
+  function saveWho(who){ return lsSet('lovetank-whoami', who); }
+  function clearWho(){ return lsDelete('lovetank-whoami'); }
+  function loadDataLocal(){ return lsGet(STORAGE_KEY).then(function(r){ if(r && r.value){ try{ state.data = JSON.parse(r.value); }catch(e){ state.data={requests:[],completions:[]}; } } else { state.data={requests:[],completions:[]}; } }); }
+
+  // ===================== Sincronización en la nube (kvdb.io, gratis, sin cuenta) =====================
+  var SYNC_BASE = 'https://kvdb.io/';
+  var SYNC_KEY = 'tanque-de-amor-data';
+  var syncBucket = null;
+
+  function loadSyncBucket(){ return lsGet('lovetank-syncBucket').then(function(r){ syncBucket = r ? r.value : null; }); }
+  function saveSyncBucket(id){ syncBucket = id; return lsSet('lovetank-syncBucket', id); }
+  function syncUrl(){ return SYNC_BASE + syncBucket + '/' + SYNC_KEY; }
+
+  function createBucket(){
+    var body = new URLSearchParams({ email: 'tanque-de-amor@example.com', default_ttl: '0' });
+    return fetch(SYNC_BASE, {method:'POST', body: body}).then(function(r){
+      if(!r.ok) throw new Error('No se pudo crear el código (http '+r.status+')');
+      return r.text();
+    }).then(function(id){
+      id = (id || '').trim();
+      if(!id) throw new Error('Respuesta vacía del servidor');
+      return id;
+    });
+  }
+
+  function testBucket(id){
+    var url = SYNC_BASE + id + '/' + SYNC_KEY;
+    return fetch(url, {method:'GET', cache:'no-store'}).then(function(r){
+      if(r.ok || r.status === 404) return true;
+      throw new Error('http '+r.status);
+    });
+  }
+
+  function setSyncStatus(s){
+    var pill = document.getElementById('syncPill');
+    if(!pill) return;
+    var map = {ok:['🟢','Sincronizado'], syncing:['🟡','Sincronizando…'], error:['🔴','Sin conexión'], idle:['⚪','Sin código']};
+    var m = map[s] || map.idle;
+    pill.textContent = m[0] + ' ' + m[1];
+  }
+
+  function syncPull(){
+    if(!syncBucket) { setSyncStatus('idle'); return Promise.resolve(); }
+    setSyncStatus('syncing');
+    return fetch(syncUrl(), {method:'GET', cache:'no-store'}).then(function(r){
+      if(r.status === 404){ setSyncStatus('ok'); return null; }
+      if(!r.ok) throw new Error('http '+r.status);
+      return r.text();
+    }).then(function(text){
+      setSyncStatus('ok');
+      if(!text) return;
+      var fresh;
+      try{ fresh = JSON.parse(text); }catch(e){ return; }
+      if(!fresh || !Array.isArray(fresh.requests) || !Array.isArray(fresh.completions)) return;
+      var changed = JSON.stringify(fresh) !== JSON.stringify(state.data);
+      if(changed) applyFreshData(fresh);
+    }).catch(function(){ setSyncStatus('error'); });
+  }
+
+  function syncPush(data){
+    if(!syncBucket) return Promise.resolve();
+    return fetch(syncUrl(), {method:'POST', body: JSON.stringify(data)}).then(function(r){
+      if(!r.ok) throw new Error('http '+r.status);
+      setSyncStatus('ok');
+    }).catch(function(){ setSyncStatus('error'); });
+  }
+
+  function mergeById(remoteList, localList){
+    var map = {};
+    (remoteList||[]).forEach(function(x){ map[x.id] = x; });
+    (localList||[]).forEach(function(x){ map[x.id] = x; }); // local (most recent action) wins on conflicts
+    return Object.keys(map).map(function(k){ return map[k]; });
+  }
+
+  function mergeAndPush(){
+    if(!syncBucket) return Promise.resolve();
+    return fetch(syncUrl(), {method:'GET', cache:'no-store'}).then(function(r){
+      if(r.status === 404) return null;
+      if(!r.ok) throw new Error('http '+r.status);
+      return r.text();
+    }).then(function(text){
+      var remote = null;
+      if(text){ try{ remote = JSON.parse(text); }catch(e){ remote = null; } }
+      if(remote && Array.isArray(remote.requests) && Array.isArray(remote.completions)){
+        state.data.requests = mergeById(remote.requests, state.data.requests);
+        state.data.completions = mergeById(remote.completions, state.data.completions);
+        lsSet(STORAGE_KEY, JSON.stringify(state.data));
+      }
+      return syncPush(state.data);
+    }).catch(function(){
+      return syncPush(state.data);
+    });
+  }
+
+  // Guarda local + intenta subir a la nube (primero fusiona con lo que haya en el servidor, para no perder cambios del otro)
+  function saveData(){
+    return lsSet(STORAGE_KEY, JSON.stringify(state.data)).then(function(){
+      return mergeAndPush();
+    }).catch(function(){
+      alert('No se pudo guardar en este navegador. Revisa que no estés en modo incógnito.');
+    });
+  }
+
+  function applyFreshData(fresh){
+    var unseen = fresh.requests.filter(function(nr){ return seenReqIds.indexOf(nr.id) === -1; });
+    var toNotify = unseen.filter(function(nr){ return nr.doer === state.who && nr.active; });
+    toNotify.forEach(function(nr){
+      showToast({icon:ICONS[nr.language], colorVar:COLORVAR[nr.language], title:'Nueva solicitud de '+NAMES[nr.requester], text:LABELS[nr.language]+' · '+FREQ_LABELS[nr.frequency]+' — "'+nr.text+'"'});
+    });
+    if(unseen.length > 0){ seenReqIds = seenReqIds.concat(unseen.map(function(x){return x.id;})); saveSeenIds(); }
+    state.data = fresh;
+    lsSet(STORAGE_KEY, JSON.stringify(fresh));
+    renderAll();
+  }
+
+  function loadSeenIds(){ return lsGet('lovetank-seenReqIds').then(function(r){ seenReqIds = r && r.value ? JSON.parse(r.value) : []; }); }
+  function saveSeenIds(){ return lsSet('lovetank-seenReqIds', JSON.stringify(seenReqIds)); }
+
+  // ===================== Cálculo del tanque =====================
+  function weeklyStats(person){
+    var reqs = state.data.requests.filter(function(r){ return r.requester===person && r.active && r.frequency!=='mensual'; });
+    var perLang = {}; LANGS.forEach(function(l){ perLang[l]={target:0,earned:0,weight:weightFor(person,l)}; });
+    var target = 0;
+    reqs.forEach(function(r){ var w=weightFor(person,r.language); var t=r.frequency==='diaria'?w*7:w; perLang[r.language].target+=t; target+=t; });
+    var earned=0, bonus=0;
+    state.data.completions.forEach(function(c){
+      if(c.requester !== person) return;
+      var cd = new Date(c.date);
+      if(cd >= MONDAY && cd < NEXT_MONDAY){
+        if(c.bonus){ bonus += c.points; } else { perLang[c.language].earned += c.points; earned += c.points; }
+      }
+    });
+    return {target:target, earned:earned, bonus:bonus, perLang:perLang};
+  }
+
+  // ===================== Render: Tanques =====================
+  function renderTanks(){
+    var wrap = document.getElementById('tanksWrap');
+    var html = '';
+    ['eugenia','miguel'].forEach(function(person, i){
+      var stats = weeklyStats(person);
+      var pct = stats.target>0 ? Math.round(((stats.earned+stats.bonus)/stats.target)*100) : 0;
+      var displayPct = Math.min(pct, 100);
+      var overflow = pct > 100;
+      var bandsHtml = '';
+      var order = LANGS.slice().sort(function(a,b){ return weightFor(person,a)-weightFor(person,b); });
+      order.forEach(function(lang){
+        var pl = stats.perLang[lang];
+        var heightPct = (pl.weight/15)*100;
+        var fillPct = pl.target>0 ? Math.min(100, Math.round((pl.earned/pl.target)*100)) : 0;
+        bandsHtml += '<div class="band" style="height:'+heightPct+'%" title="'+LABELS[lang]+': '+fillPct+'%"><div class="fill" style="height:'+fillPct+'%; background:var('+COLORVAR[lang]+')"></div></div>';
+      });
+      html += '<div class="tank-col"><div class="who-name">'+NAMES[person]+'<span class="rank-note">se llena con lo que hace '+NAMES[PARTNER[person]]+'</span></div>' +
+        '<div class="jar">'+bandsHtml+'</div>' +
+        '<div class="tank-pct mono">'+displayPct+'%<small>'+(stats.target>0?'del tanque semanal':'sin solicitudes activas')+'</small></div>' +
+        (overflow ? '<div class="tank-overflow">+ bonus mensual desbordado 💫</div>' : '') +
+        '</div>';
+      if(i===0){ html += '<div class="versus"><div class="heart-big">♥</div><div class="countdown">reinicia en<b id="countdownVal">'+countdownText()+'</b></div></div>'; }
+    });
+    wrap.innerHTML = html;
+  }
+
+  // ===================== Render: Inicio =====================
+  function renderInicio(){
+    var el = document.getElementById('panel-inicio');
+    var who = state.who;
+    var todayKey = dateKey(new Date());
+    var monthK = monthKey(new Date());
+    var pendingDaily=[], pendingWeekly=[], pendingMonthly=[];
+    state.data.requests.forEach(function(r){
+      if(r.doer !== who || !r.active) return;
+      if(r.frequency === 'diaria'){
+        var doneToday = state.data.completions.some(function(c){ return c.requestId===r.id && c.date.slice(0,10)===todayKey; });
+        if(!doneToday) pendingDaily.push(r);
+      } else if(r.frequency === 'semanal'){
+        var doneWeek = state.data.completions.some(function(c){ if(c.requestId!==r.id) return false; var cd=new Date(c.date); return cd>=MONDAY && cd<NEXT_MONDAY; });
+        if(!doneWeek) pendingWeekly.push(r);
+      } else {
+        var doneMonth = state.data.completions.some(function(c){ return c.requestId===r.id && c.date.slice(0,7)===monthK; });
+        if(!doneMonth) pendingMonthly.push(r);
+      }
+    });
+    function pendItemHtml(r, freqNote){
+      return '<div class="pend-item"><div class="lang-dot" style="background:color-mix(in srgb, var('+COLORVAR[r.language]+') 22%, transparent)">'+ICONS[r.language]+'</div>' +
+        '<div class="txt"><div class="desc">'+escapeHtml(r.text)+'</div><div class="meta">'+LABELS[r.language]+' · '+freqNote+' · para '+NAMES[r.requester]+'</div></div>' +
+        '<button class="btn primary small" data-complete="'+r.id+'">Hecho ✓</button></div>';
+    }
+    var html = '<div class="card"><h2>Pendientes para hoy</h2><p class="sub">Cosas que '+NAMES[who]+' puede hacer ahora para llenar el tanque de '+NAMES[PARTNER[who]]+'.</p>';
+    if(pendingDaily.length===0 && pendingWeekly.length===0){
+      html += '<div class="empty">No hay pendientes activos. Ve a "Solicitudes" para crear una, o revisa la pestaña Guía para ideas.</div>';
+    } else {
+      pendingDaily.forEach(function(r){ html += pendItemHtml(r,'hoy'); });
+      pendingWeekly.forEach(function(r){ html += pendItemHtml(r,'esta semana'); });
+    }
+    html += '</div>';
+    if(pendingMonthly.length>0){
+      html += '<div class="card"><h2>Detalle especial del mes</h2><p class="sub">No suman al tanque semanal, pero son un extra que ilumina todo el mes.</p>';
+      pendingMonthly.forEach(function(r){ html += pendItemHtml(r,'este mes'); });
+      html += '</div>';
+    }
+    var myStats = weeklyStats(who);
+    var weakest = null;
+    LANGS.forEach(function(l){ var pl=myStats.perLang[l]; if(pl.target>0){ var ratio=pl.earned/pl.target; if(weakest===null || ratio<weakest.ratio){ weakest={lang:l, ratio:ratio}; } } });
+    html += '<div class="card"><h2>Tu tanque, '+NAMES[who]+'</h2>';
+    if(myStats.target===0){
+      html += '<p class="sub">Aún no tienes solicitudes activas. Cuéntale a '+NAMES[PARTNER[who]]+' qué necesitas — ve a la pestaña Solicitudes.</p>';
+    } else if(weakest && weakest.ratio<1){
+      html += '<p class="sub">Esta semana lo que más está pidiendo atención es <b style="color:var('+COLORVAR[weakest.lang]+')">'+LABELS[weakest.lang]+'</b> ('+ICONS[weakest.lang]+'). Podrías pedirle a '+NAMES[PARTNER[who]]+' algo concreto en ese lenguaje.</p>';
+    } else {
+      html += '<p class="sub">Vas muy bien esta semana — todas tus solicitudes activas están al día. 💧</p>';
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ===================== Render: Solicitudes =====================
+  function renderSolicitudes(){
+    var el = document.getElementById('panel-solicitudes');
+    var who = state.who, partner = PARTNER[who];
+    var langOptions = PRIORITIES[who].map(function(l, idx){ return '<option value="'+l+'">'+ICONS[l]+' '+LABELS[l]+' (tu prioridad #'+(idx+1)+')</option>'; }).join('');
+    var html = '<div class="card"><h2>Pedir algo nuevo</h2><p class="sub">Crea una solicitud para que '+NAMES[partner]+' sepa qué te haría sentir amado/a.</p>' +
+      '<div class="form-grid">' +
+        '<div><label>Lenguaje del amor</label><select id="newLang">'+langOptions+'</select></div>' +
+        '<div><label>Frecuencia</label><select id="newFreq"><option value="diaria">Diaria</option><option value="semanal" selected>Semanal</option><option value="mensual">Mensual</option></select></div>' +
+      '</div>' +
+      '<label style="font-size:11px;color:var(--muted);display:block;margin-bottom:5px;font-family:\'JetBrains Mono\',monospace;">¿Qué te gustaría que hiciera?</label>' +
+      '<textarea id="newText" placeholder="Ej: Preguntarme cómo estuvo mi día y escuchar sin el celular"></textarea>' +
+      '<div style="margin-top:12px; text-align:right;"><button class="btn primary" id="addReqBtn">Agregar solicitud</button></div></div>';
+
+    var mine = state.data.requests.filter(function(r){ return r.requester===who && r.active; });
+    var theirs = state.data.requests.filter(function(r){ return r.doer===who && r.active; });
+    function reqItemHtml(r, kind){
+      var freqNote = FREQ_LABELS[r.frequency];
+      freqNote += kind==='mine' ? (' · pedido a '+NAMES[r.doer]) : (' · para '+NAMES[r.requester]);
+      return '<div class="req-item"><div class="lang-dot" style="background:color-mix(in srgb, var('+COLORVAR[r.language]+') 22%, transparent)">'+ICONS[r.language]+'</div>' +
+        '<div class="txt"><div class="desc">'+escapeHtml(r.text)+'</div><div class="meta">'+LABELS[r.language]+' · '+freqNote+'</div></div>' +
+        '<button class="btn ghost small" data-archive="'+r.id+'">Archivar</button></div>';
+    }
+    html += '<div class="card"><div class="req-group-title">Lo que tú pediste ('+mine.length+')</div>';
+    html += mine.length ? mine.map(function(r){return reqItemHtml(r,'mine');}).join('') : '<div class="empty">Aún no has pedido nada.</div>';
+    html += '<div class="req-group-title">Lo que '+NAMES[partner]+' te pidió a ti ('+theirs.length+')</div>';
+    html += theirs.length ? theirs.map(function(r){return reqItemHtml(r,'theirs');}).join('') : '<div class="empty">Nada pendiente por ahora.</div>';
+    html += '</div>';
+    el.innerHTML = html;
+
+    document.getElementById('addReqBtn').addEventListener('click', function(){
+      var lang = document.getElementById('newLang').value;
+      var freq = document.getElementById('newFreq').value;
+      var text = document.getElementById('newText').value.trim();
+      if(!text){ alert('Describe qué te gustaría que hiciera.'); return; }
+      var newId = uid();
+      state.data.requests.push({id:newId, requester:who, doer:partner, language:lang, frequency:freq, text:text, active:true, createdAt:new Date().toISOString()});
+      seenReqIds.push(newId); saveSeenIds();
+      saveData().then(function(){
+        renderAll();
+        showToast({icon:ICONS[lang], colorVar:COLORVAR[lang], title:'Solicitud creada ✓', text:'Se avisará a '+NAMES[partner]+' cuando abra la app.'});
+      });
+    });
+  }
+
+  // ===================== Render: Guía =====================
+  function renderGuia(){
+    var el = document.getElementById('panel-guia');
+    var html = '<div class="card"><h2>Cómo funciona el método</h2><p class="sub" style="margin-bottom:0;">'+METHOD_INTRO+'</p></div><div class="card">';
+    LANGS.forEach(function(lang){
+      var eRank = PRIORITIES.eugenia.indexOf(lang)+1;
+      var mRank = PRIORITIES.miguel.indexOf(lang)+1;
+      html += '<div class="lang-block"><div class="lang-head">' +
+        '<div class="lang-dot" style="background:color-mix(in srgb, var('+COLORVAR[lang]+') 22%, transparent)">'+ICONS[lang]+'</div>' +
+        '<h3>'+LABELS[lang]+'</h3>' +
+        '<div class="ranks"><span class="rank-chip'+(eRank===1?' top':'')+'">Eugenia #'+eRank+'</span><span class="rank-chip'+(mRank===1?' top':'')+'">Miguel #'+mRank+'</span></div></div>' +
+        '<p>'+GUIA_TEXT[lang].desc+'</p><div class="tip">'+GUIA_TEXT[lang].tip+'</div></div>';
+    });
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ===================== Render: Historial =====================
+  function renderHistorial(){
+    var el = document.getElementById('panel-historial');
+    var list = state.data.completions.slice().sort(function(a,b){ return new Date(b.date)-new Date(a.date); }).slice(0,60);
+    var html = '<div class="card"><h2>Historial de depósitos</h2><p class="sub">Últimas acciones registradas por ambos.</p>';
+    if(list.length===0){ html += '<div class="empty">Todavía no hay depósitos registrados.</div>'; }
+    else {
+      list.forEach(function(c){
+        var d = new Date(c.date);
+        var dd = d.toLocaleDateString('es-ES', {day:'2-digit', month:'2-digit'});
+        html += '<div class="hist-item"><div class="date">'+dd+'</div>' +
+          '<div class="lang-dot" style="width:26px;height:26px;font-size:12px;background:color-mix(in srgb, var('+COLORVAR[c.language]+') 22%, transparent)">'+ICONS[c.language]+'</div>' +
+          '<div>'+NAMES[c.doer]+' hizo algo de <b>'+LABELS[c.language]+'</b> para '+NAMES[c.requester]+(c.bonus?' <span class="badge">bonus mensual</span>':'')+'</div>' +
+          '<div class="points">+'+c.points+'</div></div>';
+      });
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  }
+
+  // ===================== Render: Ajustes (sync + respaldo manual) =====================
+  function renderRespaldo(){
+    var el = document.getElementById('panel-respaldo');
+    var now = new Date();
+    var stamp = now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+
+    var html = '<div class="card"><h2>Código de sincronización</h2><p class="sub">Este es el código que conecta este celular con el de '+NAMES[PARTNER[state.who]]+'. Si algún día instalan el archivo en un celular nuevo, usen este mismo código.</p>' +
+      '<div class="code-box" style="font-size:14px;">'+ (syncBucket || 'sin código') +'</div>' +
+      '<button class="btn small" id="copyCodeBtn2">Copiar código</button></div>';
+
+    html += '<div class="card"><h2>Respaldo manual (opcional)</h2><p class="sub">Si por algún motivo la sincronización automática falla, pueden intercambiar un archivo de respaldo como alternativa. Última actualización local: '+stamp+'.</p>' +
+      '<button class="btn" id="exportBtn" style="margin-right:8px;">Descargar respaldo (.json)</button>' +
+      '<div style="margin-top:14px;"><input type="file" id="importFile" accept="application/json,.json" style="display:block; margin-bottom:10px; font-size:12.5px; color:var(--muted);">' +
+      '<button class="btn" id="importBtn">Importar y reemplazar</button></div></div>';
+
+    el.innerHTML = html;
+
+    var copyBtn = document.getElementById('copyCodeBtn2');
+    if(copyBtn) copyBtn.addEventListener('click', function(){
+      if(!syncBucket) return;
+      navigator.clipboard.writeText(syncBucket).then(function(){
+        showToast({icon:'📋', colorVar:'--aqua', title:'Código copiado', text:'Ya lo puedes pegar donde quieras.'});
+      }).catch(function(){});
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', function(){
+      var payload = JSON.stringify(state.data, null, 2);
+      var blob = new Blob([payload], {type:'application/json'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = 'tanque-de-amor-respaldo-' + dateKey(new Date()) + '.json';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast({icon:'⬇️', colorVar:'--aqua', title:'Respaldo descargado', text:'Guárdalo por si acaso.'});
+    });
+
+    document.getElementById('importBtn').addEventListener('click', function(){
+      var fileInput = document.getElementById('importFile');
+      var file = fileInput.files && fileInput.files[0];
+      if(!file){ alert('Primero elige el archivo .json.'); return; }
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var parsed;
+        try{ parsed = JSON.parse(e.target.result); } catch(err){ alert('Ese archivo no es un respaldo válido.'); return; }
+        if(!parsed || !Array.isArray(parsed.requests) || !Array.isArray(parsed.completions)){ alert('Ese archivo no tiene el formato esperado.'); return; }
+        if(!confirm('Esto reemplazará los datos por los del archivo importado. ¿Continuar?')) return;
+        lsSet(STORAGE_KEY, JSON.stringify(parsed)).then(function(){
+          applyFreshData(parsed);
+          syncPush(parsed);
+          showToast({icon:'✅', colorVar:'--sage', title:'Respaldo importado', text:'Los datos ya están actualizados y sincronizados.'});
+        });
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // ===================== Acciones =====================
+  function completeRequest(reqId){
+    var r = state.data.requests.find(function(x){ return x.id===reqId; });
+    if(!r) return;
+    var isBonus = r.frequency==='mensual';
+    var pts = weightFor(r.requester, r.language);
+    state.data.completions.push({id:uid(), requestId:r.id, requester:r.requester, doer:r.doer, language:r.language, points:pts, bonus:isBonus, date:new Date().toISOString()});
+    saveData().then(renderAll);
+  }
+  function archiveRequest(reqId){
+    var r = state.data.requests.find(function(x){ return x.id===reqId; });
+    if(!r) return;
+    if(!confirm('¿Archivar esta solicitud? Ya no aparecerá como pendiente.')) return;
+    r.active = false;
+    saveData().then(renderAll);
+  }
+
+  // ===================== Toasts =====================
+  function showToast(opts){
+    var container = document.getElementById('toastContainer');
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<div class="toast-dot" style="background:color-mix(in srgb, var('+opts.colorVar+') 25%, transparent)">'+opts.icon+'</div>' +
+      '<div class="toast-body"><div class="toast-title">'+opts.title+'</div><div class="toast-text">'+opts.text+'</div></div>' +
+      '<button class="toast-close" aria-label="Cerrar">✕</button>';
+    container.appendChild(el);
+    function remove(){ el.classList.add('leaving'); setTimeout(function(){ el.remove(); }, 260); }
+    el.querySelector('.toast-close').addEventListener('click', remove);
+    var timer = setTimeout(remove, 7000);
+    el.addEventListener('mouseenter', function(){ clearTimeout(timer); });
+    el.addEventListener('mouseleave', function(){ timer = setTimeout(remove, 2500); });
+  }
+
+  // ===================== Render orquestador =====================
+  function renderAll(){
+    document.getElementById('weekRange').textContent = fmtRange();
+    document.getElementById('whoLabel').textContent = NAMES[state.who];
+    renderTanks(); renderInicio(); renderSolicitudes(); renderGuia(); renderHistorial(); renderRespaldo();
+  }
+  function switchTab(tab){
+    state.tab = tab;
+    document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.tab===tab); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.toggle('active', p.id==='panel-'+tab); });
+  }
+
+  // ===================== Eventos delegados =====================
+  document.addEventListener('click', function(e){
+    var completeBtn = e.target.closest('[data-complete]'); if(completeBtn){ completeRequest(completeBtn.getAttribute('data-complete')); return; }
+    var archiveBtn = e.target.closest('[data-archive]'); if(archiveBtn){ archiveRequest(archiveBtn.getAttribute('data-archive')); return; }
+    var tabBtn = e.target.closest('.tab-btn'); if(tabBtn){ switchTab(tabBtn.dataset.tab); return; }
+  });
+
+  document.getElementById('manualSyncBtn').addEventListener('click', function(){
+    setSyncStatus('syncing');
+    syncPull().then(function(){
+      showToast({icon:'↻', colorVar:'--aqua', title:'Sincronización manual', text:'Se buscaron cambios nuevos del servidor.'});
+    });
+  });
+
+  document.getElementById('switchWho').addEventListener('click', function(){
+    clearWho().then(function(){
+      state.who = null;
+      document.getElementById('app').style.display = 'none';
+      showStep('step-who');
+      document.getElementById('onboarding').style.display = 'flex';
+    });
+  });
+
+  function showStep(id){
+    document.querySelectorAll('.step').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+  }
+
+  // --- Paso 1: elegir quién eres ---
+  document.querySelectorAll('.who-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      pendingWho = btn.dataset.who;
+      saveWho(pendingWho).then(function(){
+        state.who = pendingWho;
+        if(syncBucket){ finishOnboarding(); }
+        else { showStep('step-sync'); }
+      }).catch(function(){
+        showStep('step-storage-error');
+      });
+    });
+  });
+
+  // --- Paso 2: elegir crear código o ingresar código ---
+  document.getElementById('createCodeBtn').addEventListener('click', function(){
+    var status = document.getElementById('syncSetupStatus');
+    status.textContent = 'Creando código…'; status.className = 'status-line';
+    createBucket().then(function(id){
+      pendingCreatedCode = id;
+      return saveSyncBucket(id);
+    }).then(function(){
+      document.getElementById('codeDisplay').textContent = pendingCreatedCode;
+      showStep('step-showcode');
+    }).catch(function(err){
+      status.textContent = 'No se pudo crear el código. Revisa tu conexión a internet e intenta de nuevo.';
+      status.className = 'status-line err';
+    });
+  });
+
+  document.getElementById('haveCodeBtn').addEventListener('click', function(){
+    showStep('step-entercode');
+  });
+  document.getElementById('backFromEnter').addEventListener('click', function(){
+    showStep('step-sync');
+  });
+
+  document.getElementById('connectCodeBtn').addEventListener('click', function(){
+    var code = document.getElementById('codeInput').value.trim();
+    var status = document.getElementById('connectStatus');
+    if(!code){ status.textContent='Ingresa un código.'; status.className='status-line err'; return; }
+    status.textContent = 'Conectando…'; status.className = 'status-line';
+    testBucket(code).then(function(){
+      return saveSyncBucket(code);
+    }).then(function(){
+      status.textContent = '¡Conectado!'; status.className = 'status-line ok';
+      setTimeout(finishOnboarding, 400);
+    }).catch(function(){
+      status.textContent = 'No se pudo verificar ese código. Revisa que esté bien copiado y tu conexión a internet.';
+      status.className = 'status-line err';
+    });
+  });
+
+  document.getElementById('copyCodeBtn').addEventListener('click', function(){
+    if(!pendingCreatedCode) return;
+    navigator.clipboard.writeText(pendingCreatedCode).then(function(){
+      showToast({icon:'📋', colorVar:'--aqua', title:'Código copiado', text:'Pégalo en el chat que le vas a enviar a tu pareja.'});
+    }).catch(function(){});
+  });
+  document.getElementById('continueAfterCode').addEventListener('click', finishOnboarding);
+
+  function finishOnboarding(){
+    document.getElementById('onboarding').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    boot2();
+  }
+
+  // ===================== Verificación de almacenamiento =====================
+  function storageWorks(){
+    try{
+      var t = '__lovetank_test__';
+      localStorage.setItem(t, '1');
+      localStorage.removeItem(t);
+      return true;
+    }catch(e){ return false; }
+  }
+
+  document.getElementById('retryStorageBtn').addEventListener('click', function(){
+    location.reload();
+  });
+
+  // ===================== Boot =====================
+  function boot2(){
+    renderAll();
+    setInterval(function(){ var el=document.getElementById('countdownVal'); if(el) el.textContent = countdownText(); }, 60000);
+
+    loadSeenIds().then(function(){
+      var allIds = state.data.requests.map(function(x){ return x.id; });
+      var missing = allIds.filter(function(id){ return seenReqIds.indexOf(id)===-1; });
+      if(missing.length){ seenReqIds = seenReqIds.concat(missing); saveSeenIds(); }
+      syncPull();
+      setInterval(syncPull, 10000);
+    });
+  }
+
+  function boot(){
+    if(!storageWorks()){
+      document.getElementById('onboarding').style.display = 'flex';
+      showStep('step-storage-error');
+      return;
+    }
+    Promise.all([loadWho(), loadDataLocal(), loadSyncBucket()]).then(function(){
+      if(state.who && syncBucket){
+        document.getElementById('onboarding').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        boot2();
+      } else if(state.who && !syncBucket){
+        document.getElementById('onboarding').style.display = 'flex';
+        showStep('step-sync');
+      } else {
+        document.getElementById('onboarding').style.display = 'flex';
+        showStep('step-who');
+      }
+    });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
